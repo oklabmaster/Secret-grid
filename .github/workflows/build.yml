@@ -1,0 +1,29 @@
+name: 앱 빌드
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 압축 풀기
+        run: for f in *.zip; do unzip -q -o "$f"; done
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 게임 파일 묶기
+        working-directory: game2
+        run: node build.cjs
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: APK 만들기
+        working-directory: game2/android
+        run: chmod +x gradlew && ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SecretGrid-APK
+          path: game2/android/app/build/outputs/apk/debug/*.apk
