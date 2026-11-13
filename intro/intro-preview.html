@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SECRET GRID 인트로 (4초)</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&display=swap" rel="stylesheet">
+<style>
+/* 미리보기용 바탕 — 게임에 넣을 때는 필요 없음 */
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#E9ECE8;font-family:system-ui,sans-serif}
+.demo-btn{min-height:48px;padding:0 22px;border:0;border-radius:8px;background:#15181D;color:#fff;font-size:16px;font-weight:700}
+</style>
+</head>
+<body>
+<button class="demo-btn" onclick="SGIntro.play()">인트로 다시 보기</button>
+
+<!-- ▼▼▼ 여기부터 게임에 복사 ▼▼▼ -->
+<style id="sg-intro-css">
+#sg-intro{position:fixed;inset:0;z-index:9999;background:#0E1822;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.5vmin;overflow:hidden;transition:opacity .28s;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#sg-intro[hidden]{display:none}
+#sg-intro.sg-out{opacity:0}
+#sg-intro svg{width:min(76vmin,440px);height:auto;overflow:visible}
+#sg-intro .sg-tile{transform-box:fill-box;transform-origin:center;opacity:0}
+#sg-intro.sg-play .sg-tile{animation:sgIn .55s cubic-bezier(.2,.9,.3,1.12) both;animation-delay:calc(var(--i)*60ms)}
+@keyframes sgIn{from{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(.6)}60%{opacity:1}to{opacity:1;transform:none}}
+#sg-intro .sg-bg{fill:#14212D;stroke:#2A3C4D;stroke-width:1.5;transition:fill .12s,stroke .12s}
+#sg-intro .sg-bg.sg-hit{fill:#3A1B1E;stroke:#E0352B}
+#sg-intro .sg-road{fill:none;stroke:#33475A;stroke-width:28}
+#sg-intro .sg-dash{fill:none;stroke:#93A4B4;stroke-width:2;stroke-dasharray:8 10;opacity:.7}
+#sg-intro .sg-light{opacity:0;mix-blend-mode:screen}
+#sg-intro.sg-play .sg-light{animation:sgLight 4s linear both}
+@keyframes sgLight{0%,24%{opacity:0;transform:translate(-90px,110px)}26%,46%{opacity:1}48%,100%{opacity:0;transform:translate(450px,200px)}}
+#sg-intro .sg-trap{transform-box:fill-box;transform-origin:center;transform:scale(0)}
+#sg-intro.sg-play .sg-trap{animation:sgTrap 4s linear both}
+@keyframes sgTrap{0%,35%{transform:scale(0)}38%{transform:scale(1.25)}41%,45%{transform:scale(1)}48%,100%{transform:scale(0)}}
+#sg-intro #sg-car{opacity:0;transition:opacity .15s}
+#sg-intro .sg-word{position:relative;font:700 clamp(44px,13vmin,84px)/1 'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.03em;white-space:pre;padding-bottom:.14em}
+#sg-intro .sg-word span{color:#22323F;transition:color .12s,text-shadow .12s}
+#sg-intro .sg-word span.on{color:#F1F4F6;text-shadow:0 0 18px rgba(255,244,176,.55)}
+#sg-intro .sg-word::after{content:"";position:absolute;left:0;bottom:0;height:4px;width:0;background:#E0352B;border-radius:2px;transition:width .3s}
+#sg-intro.sg-stamp .sg-word{animation:sgStamp .35s cubic-bezier(.2,1.4,.4,1) both}
+#sg-intro.sg-stamp .sg-word::after{width:100%}
+@keyframes sgStamp{from{transform:scale(1.22)}to{transform:none}}
+#sg-intro .sg-skip{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom,0px));font:500 12px/1 system-ui,sans-serif;color:#93A4B4;opacity:.6}
+#sg-intro.sg-reduce *{animation:none!important}
+#sg-intro.sg-reduce .sg-tile{opacity:1}
+</style>
+
+<div id="sg-intro" hidden aria-hidden="true">
+  <svg viewBox="0 0 360 332">
+    <defs>
+      <radialGradient id="sgLightG"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    </defs>
+    <g id="sg-tiles"></g>
+    <g transform="translate(266 166)"><g class="sg-trap">
+      <circle r="21" fill="#E0352B"/>
+      <rect x="-12" y="-2.6" width="24" height="5.2" rx="2.6" fill="#fff" transform="rotate(45)"/>
+      <rect x="-12" y="-2.6" width="24" height="5.2" rx="2.6" fill="#fff" transform="rotate(-45)"/>
+    </g></g>
+    <g id="sg-car">
+      <polygon points="13,-5 64,-22 64,22 13,5" fill="#FFF4B0" opacity=".2"/>
+      <rect x="-10" y="-10" width="7" height="3.5" rx="1"/><rect x="4" y="-10" width="7" height="3.5" rx="1"/>
+      <rect x="-10" y="6.5" width="7" height="3.5" rx="1"/><rect x="4" y="6.5" width="7" height="3.5" rx="1"/>
+      <rect x="-14" y="-7.5" width="28" height="15" rx="5.5" fill="#F1F4F6"/>
+      <rect x="1" y="-5.2" width="6" height="10.4" rx="2" fill="#0E1822"/>
+      <rect x="-9.5" y="-5" width="4" height="10" rx="1.5" fill="#0E1822" opacity=".7"/>
+      <circle cx="12.5" cy="-4.6" r="1.6" fill="#FFF4B0"/><circle cx="12.5" cy="4.6" r="1.6" fill="#FFF4B0"/>
+    </g>
+    <circle class="sg-light" r="95" fill="url(#sgLightG)"/>
+  </svg>
+  <div class="sg-word" id="sg-word"></div>
+  <div class="sg-skip">탭하면 건너뛰기</div>
+</div>
+
+<script id="sg-intro-js">
+/* SECRET GRID 인트로 — 4초
+   0.0~1.0 조각 9개 조립 → 1.0~1.9 손전등 + 트랩 숨김 → 2.0~3.1 차 한 바퀴(로고 점등) → 3.1 로고 쾅 → 4.0 종료
+   사용: SGIntro.play({ onDone: function(){ ...시작 화면 표시... } })   /   건너뛰기: 화면 탭 */
+(function(){
+  var NS='http://www.w3.org/2000/svg', root=document.getElementById('sg-intro');
+  var RING='M94,166 L94,120 Q94,80 134,80 L226,80 Q266,80 266,120 L266,212 Q266,252 226,252 L134,252 Q94,252 94,212 Z';
+  var TEXT='SECRET GRID', TRAP_TILE=5, ORDER=[4,0,8,2,6,1,7,3,5];
+  var tilesG=root.querySelector('#sg-tiles'), car=root.querySelector('#sg-car'), word=root.querySelector('#sg-word');
+  var raf=0, timer=0, cb=null, trapBg=null, letters=[];
+  function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e}
+
+  for(var i=0;i<9;i++){
+    var r=Math.floor(i/3), c=i%3, x=54+c*86, y=40+r*86;
+    var g=el('g',{'class':'sg-tile'});
+    g.style.setProperty('--i',ORDER.indexOf(i));
+    g.style.setProperty('--dx',(c-1)*240+'px');
+    g.style.setProperty('--dy',(r-1)*240+'px');
+    g.style.setProperty('--rot',(i===4?180:(c-1||1)*(r-1||1)*70)+'deg');
+    var bg=el('rect',{'class':'sg-bg',x:x,y:y,width:80,height:80,rx:9});
+    g.appendChild(bg); if(i===TRAP_TILE)trapBg=bg;
+    if(i!==4){
+      var cp=el('clipPath',{id:'sgc'+i}); cp.appendChild(el('rect',{x:x,y:y,width:80,height:80,rx:9})); g.appendChild(cp);
+      var rg=el('g',{'clip-path':'url(#sgc'+i+')'});
+      rg.appendChild(el('path',{'class':'sg-road',d:RING})); rg.appendChild(el('path',{'class':'sg-dash',d:RING}));
+      g.appendChild(rg);
+    }else{
+      g.appendChild(el('rect',{x:x+28,y:y+28,width:24,height:24,rx:5,fill:'none',stroke:'#2A3C4D','stroke-width':2}));
+    }
+    tilesG.appendChild(g);
+  }
+  var ring=el('path',{d:RING,fill:'none'}); tilesG.appendChild(ring);
+  var L=ring.getTotalLength();
+  TEXT.split('').forEach(function(ch){var s=document.createElement('span');s.textContent=ch;word.appendChild(s);letters.push(s)});
+
+  function light(n){for(var i=0;i<letters.length;i++)letters[i].classList.toggle('on',i<n)}
+  function stop(){cancelAnimationFrame(raf);clearTimeout(timer)}
+  function finish(){
+    stop(); root.hidden=true; root.className='';
+    var f=cb; cb=null; if(f)f();
+    document.dispatchEvent(new Event('sgintro:done'));
+  }
+  function skip(){ if(root.hidden)return; stop(); root.classList.add('sg-out'); timer=setTimeout(finish,200) }
+  root.addEventListener('pointerdown',skip);
+
+  function play(opt){
+    stop(); cb=opt&&opt.onDone||null;
+    root.hidden=false; root.className=''; light(0); car.style.opacity=0; trapBg.classList.remove('sg-hit');
+    if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){
+      root.classList.add('sg-reduce','sg-stamp'); light(99); timer=setTimeout(skip,1200); return;
+    }
+    void root.offsetWidth; root.classList.add('sg-play');
+    var t0=performance.now();
+    (function frame(now){
+      var t=(now-t0)/1000, p=(t-2.0)/1.1;
+      if(p>0){
+        var e=p>=1?1:(1-Math.cos(Math.PI*p))/2, len=L*e;
+        var a=ring.getPointAtLength((len-1+L)%L), b=ring.getPointAtLength((len+1)%L), m=ring.getPointAtLength(len%L);
+        car.setAttribute('transform','translate('+m.x+' '+m.y+') rotate('+Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI+')');
+        car.style.opacity=t<3.1?1:0;
+        light(Math.floor(e*letters.length+.001));
+        trapBg.classList.toggle('sg-hit',e>.45&&e<.6);
+      }
+      if(t>=3.1){root.classList.add('sg-stamp');light(99)}
+      if(t>=3.72)root.classList.add('sg-out');
+      if(t>=4.0)return finish();
+      raf=requestAnimationFrame(frame);
+    })(t0);
+  }
+  window.SGIntro={play:play,skip:skip};
+})();
+</script>
+<!-- ▲▲▲ 여기까지 복사 ▲▲▲ -->
+
+<script>SGIntro.play();</script>
+</body>
+</html>
